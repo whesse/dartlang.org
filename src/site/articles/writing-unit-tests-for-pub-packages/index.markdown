@@ -67,7 +67,7 @@ created `class Range {}` code when we define our `range()` function).
 There are other directories and files that we should create - a README, a
 LICENSE, a `doc/` folder for documentation, an `example/` folder with examples 
 showing usage of our package, etc. - but our focus here is on how to write
-unittests, so we'll skip over those files and directories for now. To know
+unit tests, so we'll skip over those files and directories for now. To know
 what else we should be doing to make this a _respectable_ package, see this
 excellent writeup on 
 [package layout conventions](http://pub.dartlang.org/doc/package-layout.html)
@@ -94,7 +94,7 @@ dependencies:
 
 Saving `pubspec.yaml` in Dart Editor automatically triggers a call to 
 `pub install`; this creates a `pubspec.lock` file and a bunch of symlinks
-that are necessary for the plumbing to work correctly; fortunately, 
+that are necessary for the plumbing to work correctly. Fortunately, 
 `pub` handles all these details for us. 
 
 ## Write some code
@@ -158,7 +158,8 @@ between the expected and actual values. A string argument to `test()` describes
 the purpose of the test. 
 
 If you run the tests now and get an error because Dart Editor cannot locate the
-unittest library, try running `pub update`. You should see the following output
+unittest library, try running `pub update` (you can find it in the Editor's
+`Tools` menu). You should see the following output
 in the Editor:
 
     Running pub update ...
@@ -167,8 +168,8 @@ in the Editor:
 
 After running `pub update`, you should see a newly created `packages` symlink 
 in the `test` directory that permits your tests to access the `unittest`
-library. (`pub update` recursively creates symlinks in every subdirectory of 
-`/test`, `/web` and `/bin` ; it does _not_ create symlinks in `lib`).
+library (`pub update` recursively creates symlinks in every subdirectory of 
+`/test`, `/web`, and `/bin`; it does _not_ create symlinks in `lib`).
 
 Now if you run the tests (press the green arrow in the Editor; or, press 
 `CMD-R` if you are using a Mac; or, type `dart test/range_test.dart` on the

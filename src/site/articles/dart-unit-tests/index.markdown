@@ -326,7 +326,7 @@ group('foo', () {
 
 However you can interlace them differently; each test() will use the most recently set values. 
 
-Whenever a new group is startet, these functions are reset. This applies for nested groups too. Nested groups do not inherit these functions or augment them; they get their own. This is the most flexible approach as chaining can always be done explicitly.
+Whenever a new group is started, these functions are reset. This applies for nested groups too. Nested groups do not inherit these functions or augment them; they get their own. This is the most flexible approach as chaining can always be done explicitly.
 
 ## Running a limited set of tests
 
