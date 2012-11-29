@@ -1,9 +1,9 @@
 ---
 layout: default
-title: "Dart Web Components Specification"
+title: "Dart Web Components and Templates Specification"
 rel:
   author: siggi-cherem
-description: "A detailed specification of how to use Dart Web Components for declarative modern web apps."
+description: "A detailed specification of how to use Dart Web Components and templates for declarative modern web apps."
 has-permalinks: true
 ---
 {% comment %}
@@ -32,8 +32,9 @@ high-level introduction and examples, see our [explainer article](index.html).
         1. [Appearance](#appearance)
         2. [Behavior](#behavior)
     2. [Instantiation](#instantiation)
-    3. [Template lexical scope](#template-scope)
-    4. [Class members](#class-members)
+    3. [Retrieval](#retrieval)
+    4. [Template lexical scope](#template-scope)
+    5. [Class members](#class-members)
         1. [Lifecycle methods](#lifecycle-methods)
         2. [Implied fields](#implied-fields)
 2. [Template Syntax](#template-syntax)
@@ -265,6 +266,26 @@ href="https://github.com/dart-lang/dart-web-components/issues/93">issue #93</a>.
 </div>
 </aside>
 
+### Retrieval
+
+You can reach a component instance using the `xtag` property of the
+associated HTML element. For example, if you create a tag as `<x-foo
+id="#example"></x-foo>` in the top-level body of your page, you can get an
+instance of the component by calling `document.query('#example').xtag`.
+
+Note that `xtag` only works after an application is initialized and web
+components have been created. In particular, the `xtag` will be null when the
+main script of an application just started running, but will be available at the
+end of the event loop. See the [main script section](#main-script) for more
+details.
+
+<aside>
+<div class="alert alert-info">
+<strong>Note</strong>: The `xtag` field will not be needed in the future when
+components extend directly from HTML elements.
+</div>
+</aside>
+
 ### Template lexical scope {#template-scope}
 
 
@@ -305,7 +326,7 @@ the component. Additionally, once processed by the DWC compiler, the component
 has an additional private field that make it possible to programatically access
 its template.
 
-### Lifecycle methods
+#### Lifecycle methods
 
 Special callback methods are invoked by during the lifetime of a Dart web
 component. These methods are defined as part of the `WebComponent` class, and
@@ -328,38 +349,17 @@ lifecycle methods are:
 </div>
 </aside>
 
-### Implied fields
+#### Implied fields
 
-The DWC compiler generates special fields to make it easy to
-access elements in the `<template>` of a component. The compiled component
-class will have a private field named `_root`, which points to the root element
-of the template. When Shadow DOM is enabled, this node is the shadow root of the
-component.
-
-Additionally, for any element that has the `id` attribute specified, the
-compiler will include a private field pointing to such element. The name of the
-field is the camelCase version of the original identifier. For example,
-
-{% highlight html %}
-{% raw %}
-<element name='x-example2'>
- <template>... <input id="my-id-1" type="text"></input></template>
- <script type='application/dart'>
-   class Example2 extends WebComponent {
-     String get textValue => _myId1.value;
-   }
- </script>
-</element>
-{% endraw %}
-{% endhighlight %}
-
-An instance of `Example2` will have a private field `_myId1` that will point to
-the input box.
+At runtime the class associated with a component will have a private field named
+`_root`, which points to the root element of the template. When Shadow DOM is
+enabled, this node is the shadow root of the component.
 
 <aside>
 <div class="alert alert-info">
-<strong>Status:</strong> These implied fields will likely be removed in the near
-future.  See <a
+<strong>Status:</strong> Today the root field is injected automatically by the
+DWC compiler. Eventually we might require to declare the field explicitly
+so that developers can use the Dart editor and don't see any warnings. See <a
 href="https://github.com/dart-lang/dart-web-components/issues/195">Issue
 #195</a> for more details.
 </div>
@@ -462,9 +462,24 @@ You can also use `{{'{{'}}expression}}` bindings in the middle of HTML
 attributes. An attribute written as `foo="{{'{{'}}exp}}"` will be initialized
 with the value of `exp`. Like bindings in content nodes, expressions are
 [watched](#watchers) for changes and attributes will be updated in place when
-expressions' changes are detected. You can use bindings in any kind of
-attribute, but there are some additional features available for class and style
-attributes.
+expressions' changes are detected.  At runtime, attribute values will be updated
+using an assignment directly on the HTML element property corresponding to that
+attribute. Bindings of the form `attribute="{{'{{'}}exp}}"` are assigned
+directly, however bindings of the form `attribute="abc {{'{{'}}exp}} xyc"` will
+perform string interpolation.
+
+It is perfectly valid to use bindings to set and update boolean attributes.
+Without data-bindings a tag such as `<input type="checkbox"
+disabled="false">` will be disabled.  The value "false" is ignored by browsers
+and the only two ways to make the element enabled is to remove the `disabled`
+attribute or to programatically set the `disabled` property on the element to
+false. When you use attribute bindings you can simply write: `<input
+type="checkbox" disabled="{{'{{'}}exp}}">`. At runtime this will create the
+element with the disabled attribute, but the property will be assigned the value
+of `exp` immediately after. If `exp` is false, the element will be enabled.
+
+You can use bindings in any kind of attribute, but there are some additional
+features available for class and style attributes.
 
 * class attributes: A common use of data bindings in attributes is to select
   classes to attach to an element. You can bind a single class attribute by
@@ -656,7 +671,20 @@ appropriate to [use one or the other](#which-conditional).
 A template conditional element is a `<template>` tag containing a special
 attribute of the form `instantiate="if expression"`, where `expression` is a
 valid Dart expression, just like any [data binding expression](#data-binding).
-For instance, consider this example:
+Alternatively, instead of `instantiate="if exp"` you can write `if="exp"`.
+
+<aside>
+<div class="alert alert-info">
+<strong>Note:</strong> 
+The final syntax for conditionals is not finalyzed. In particular, currently
+only <code>instantiate="if ..."</code> is part of the MDV specification.
+However, the DWC compiler supports both <code>instantiate="if ..."</code> and
+<code>if="..."</code> and it will later provide feedback whenever one is
+deprecated in favor of the other.
+</div>
+</aside>
+
+Consider this concrete example:
 
 {% highlight html %}
 Unconditional portion 1
@@ -883,7 +911,6 @@ attributes as follows:
 </tbody></table>
 {% endhighlight %}
 
-
 ### Loops
 
 Loops make it possible to iterate over a collection and repeat portions of a
@@ -1060,11 +1087,15 @@ called:
 The name for the `on-` attributes is the hyphened version of the Dart name
 associated with the event in `dart:html`, which is what you would normally write
 in calls of the form `elem.on.event.add(eventListener)`. For example, the
-attribute for the `doubleClick` event is `on-double-click`.  The action in the
-attribute is can be any valid Dart expression, but typically is a method
-invocation. This expression is evaluated using lexical scoping just like any
-[data binding expression](#data-binding). A special variable `$event` is added
-to the scope of this expression to refer to the HTML event that was fired.
+attribute for the `doubleClick` event is `on-double-click`. See the API docs for
+[ElementEvents][elemevents] and [InputElementEvents][inputevents] for a complete
+list of event names.
+
+The action written in the attribute value can be any valid Dart expression, but
+typically is a method invocation. This expression is evaluated using lexical
+scoping just like any [data binding expression](#data-binding). A special
+variable `$event` is added to the scope of this expression to refer to the HTML
+event that was fired.
 
 At runtime, when the event is fired, the handler will be invoked followed
 immediately after by a call to `dispatch` that notifies watchers about data
@@ -1145,6 +1176,16 @@ in the DWC compiler.
 </div>
 </aside>
 
+Within your main script, you can query for DOM elements that you had initially
+written in the page. However, you cannot query for children of conditional and
+iteration nodes.
+
+The initialization of web components is done after `main` is executed, but
+before the end of the event loop. If you query in `main` for the element
+associated with a component, its `xtag` will be null. To [retrieve a component
+instance](#retrieval) you need to defer queries until the end of the event loop,
+for example using a `setTimeout(f, 0)`.
+
 ### Top-level templates
 
 The same template features we described earlier in this article can be used in
@@ -1167,3 +1208,5 @@ are evaluated in the top-level context of the main script.
 [wcappendix]: http://dvcs.w3.org/hg/webcomponents/raw-file/tip/explainer/index.html#appendix-b-html-elements
 [tostring]: http://api.dartlang.org/docs/bleeding_edge/dart_core/Object.html#toString
 [safehtml]: https://github.com/dart-lang/dart-web-components/blob/master/lib/safe_html.dart
+[elemevents]: http://api.dartlang.org/docs/bleeding_edge/dart_html/ElementEvents.html
+[inputevents]: http://api.dartlang.org/docs/bleeding_edge/dart_html/InputElementEvents.html
