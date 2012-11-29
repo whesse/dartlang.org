@@ -39,7 +39,7 @@ The unit test library is not new, but has undergone some changes. If you have be
 
 The new `expect()` is modelled on 3rd generation assert libraries like
 [Hamcrest](http://http//code.google.com/p/hamcrest/), and borrows some ideas
-from Ladislav Thon's [dartmatch](https://github.com/Ladicek/darmatch)
+from Ladislav Thon's [darmatch](https://github.com/Ladicek/darmatch)
 library.
 
 ## A simple unit test example
