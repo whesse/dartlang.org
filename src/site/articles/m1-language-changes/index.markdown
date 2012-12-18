@@ -6,12 +6,16 @@ rel:
 description: "A brief introduction to some of the language changes planned
              for the M1 milestone."
 has-permalinks: true
+article:
+  written_on: 2012-07-01
+  updated_on: 2012-12-01
+  collection: language-details
 ---
 
 # {{ page.title }}
 _Written by Bob Nystrom <br />
 July 2012
-(updated September 2012)_
+(updated December 2012)_
 
 Right now as we near our "Milestone 1" release, we are making a slew of fun
 language changes. There are tracking bugs in the repo for all of them, but I
@@ -44,13 +48,14 @@ where I can.
 1. [Named optional params and positional optional params are specified differently](#named-optional-params-and-positional-optional-params-are-specified-differently)
 1. [Test optional argument with "?"](#test-optional-argument)
 1. [Constructor names are now unique names in a class](#constructor-names-unique)
+1. [Simpler equality](#simpler-equality)
+1. [Metadata](#metadata)
+1. [Import and library syntax changes](#import-and-library-syntax-changes)
+1. [Strings are UTF-16](#strings-are-utf-16)
 1. [Conclusion](#conclusion)
 {:.toc}
 
 {::comment}
-1. [Simpler equality](#simpler-equality)
-1. [Import and library syntax changes](#import-and-library-syntax-changes)
-1. [Metadata](#metadata)
 1. [Callable objects](#callable-objects)
 {:/comment}
 
@@ -128,7 +133,7 @@ class.
 
 ## No "+" on String
 
-A deeply contentious issue, Dart no longer allows using the "+" operator on
+Dart no longer allows using the "+" operator on
 strings. So no more:
 
 {% highlight dart %}
@@ -226,7 +231,7 @@ directly. But that forces API designers to choose between returning a useful
 value or allowing chaining: they can’t support both. It also forces all APIs to
 be designed up front to support this technique.
 
-To remedy that, Smalltalk pioneered something called "message cascades" which
+To remedy that, Smalltalk pioneered something called "message cascades", which
 Dart has adopted. These let you sequence a series of method calls that all apply
 to the same receiver, like so:
 
@@ -238,7 +243,7 @@ query('#my-form').query('button')
 {% endhighlight %}
 
 Here, everything after `..` is called on the result of the expression before the
-first `..`. What’s nice is that this works with every API, not just ones
+first `..`. What’s nice is that cascades work with every API, not just ones
 explicitly implemented using a fluent pattern.
 
 ([Tracking issue #2501](http://dartbug.com/2501))
@@ -257,7 +262,7 @@ class Stopwatch {
 {% endhighlight %}
 
 We’ve decided to loosen that so that `static final` fields and `final` top-level
-variables can be initialized using *any* expression. These will then be lazy
+variables can be initialized using *any* expression. These will then be lazily
 initialized the first time the variable is accessed. This is closer to behavior
 users coming from Java or C# expect given Dart’s similar syntax.
 
@@ -301,7 +306,7 @@ Since `someConstant` doesn’t *have* to be constant now, it may not be, which
 means it can’t be used in a constant expression like `const [someConstant]`. To
 fix that, Dart will also allow `const` as a modifier for variables. This way you
 can indicate which top-level `final` variables and `static final` fields are
-constant and which are lazy-initialized non-constant:
+constant and which are lazily-initialized non-constant:
 
 {% highlight dart %}
 class SomeClass {
@@ -324,9 +329,9 @@ those operators. We’ll disambiguate unary and binary minus by their arity
 
 {% highlight dart %}
 class MagicNumber {
-  bool operator ==(other) => …
-  MagicNumber operator -() => … // unary negate
-  MagicNumber operator -(other) => … // infix minus
+  bool operator ==(other) => ...
+  MagicNumber operator -() => ... // unary negate
+  MagicNumber operator -(other) => ... // infix minus
 }
 {% endhighlight %}
 
@@ -363,10 +368,11 @@ In other words, with this change, your local `foo()` will *shadow* the new one
 in "somelib" instead of colliding, and your code does the right thing.
 
 In addition, we’ve removed another annoying restriction. Previously, if you
-imported the same name from two different libraries (say Node from dart:html and
-dartdoc) then you would get a name collision error *even if you didn’t use that
+imported the same name from two different libraries
+(say, Node from dart:html and dartdoc)
+then you would get a name collision error *even if you didn’t use that
 name anywhere in your code.* Now, Dart will only worry about name collisions for
-names that you actually use. You only get an error if there is an ambiguous
+names that you actually use. You get an error only if there is an ambiguous
 *use* of a name in your code.
 
 ([Tracking issue #1285](http://dartbug.com/1285))
@@ -673,7 +679,7 @@ places. In M1, `throw` has been converted to an expression.
 For example, now in M1, you can throw exceptions from one-line functions.
 
 {% highlight dart %}
-String get prettyVersion() => throw const NotImplementedException();
+String get prettyVersion => throw const NotImplementedException();
 {% endhighlight %}
 
 ([Tracking issue #587](http://dartbug.com/587))
@@ -821,25 +827,277 @@ class Ball {
 }
 {% endhighlight %}
 
-{::comment}
-
 ## Simpler equality
 
-Coming soon.
+In M1, equality got a makeover. The biggest change is `===` is now replaced
+by the top-level function `identical(a, b)`. Also, to define your own equality
+semantics in your class, implement the `==` operator instead of `equals`.
+The semantics of `==` also changed.
 
-## Import and library syntax changes
+To determine if two variables point to the same _instance_,
+use `identical(a, b)`. The old `===` no longer exists.
 
-Coming soon.
+For example:
+
+{% highlight dart %}
+class Person {
+  String firstName, lastName;
+  Person(this.firstName, this.lastName);
+}
+
+main() {
+  var bob = new Person("Bob", "Smith");
+  var robert = bob;
+  var roberto = new Person("Bob", "Smith");
+
+  print(identical(bob, robert));              // true
+  print(identical(bob, roberto));             // false
+}
+{% endhighlight %}
+
+To define your own equality semantics for a class, implement the `==` operator.
+
+Here's an example:
+
+{% highlight dart %}
+class Person {
+  String firstName, lastName;
+  Person(this.firstName, this.lastName);
+  
+  bool operator ==(Person other) {
+    return (other.firstName == firstName && other.lastName == lastName);
+  }
+}
+
+main() {
+  var bob = new Person("Bob", "Smith");
+  var robert = bob;
+  var roberto = new Person("Bob", "Smith");
+
+  print(identical(bob, robert));              // true
+  print(identical(bob, roberto));             // false
+  
+  print(bob == robert);                       // true
+  print(bob == roberto);                      // true
+}
+{% endhighlight %}
+
+Astute readers might wonder why the implementation of `operator ==` doesn't
+first check for null. Luckily, the new semantics of `==` take care of the null
+check.
+
+For `a == b`, the following happens:
+
+1. If either a or b is null, return identical(a, b)
+1. Otherwise, return a.==(b)
 
 ## Metadata
 
-Coming soon.
+You can now add metadata to classes, libraries, fields, parameters, and more.
+For example, you can mark a function as _deprecated_ with a metadata annotation.
+An editor (such as Dart Editor) can recognize the method as deprecated and
+provide visual clues.
+
+A metadata annotation begins with `@` followed by a reference to a compile-time
+constant variable, or a call to a constant constructor. In other words,
+there is no specific metadata type and developers can easily define
+their own metadata annotations. The Dart project provides the meta package,
+which contains `override` and `deprecated`.
+
+Here is a usage example of a metadata annotation. Specifically,
+`superOldMethod` is marked with `@deprecated`.
+
+{% highlight dart %}
+import 'package:meta/meta.dart';
+
+@deprecated
+superOldMethod() {
+  print("don't call me, I'm old!");
+}
+
+main() {
+  superOldMethod();
+}
+{% endhighlight %}
+
+Dart Editor applies a visual style to deprecated methods:
+
+<img src="imgs/deprecated-metadata.png"
+     alt="Dart Editor applies a visual style when @deprecated is used">
+
+## Import and library syntax changes
+
+We received a lot of feedback regarding the syntax and behavior of libraries
+and imports. Significant changes were made in M1 on both fronts.
+
+The change that affects the most code is that
+imports and library directives are now more succinct and look less like
+C. Instead of:
+
+{% highlight dart %}
+#library('trading_cards');  // OLD SYNTAX; no longer works.
+#import('dart:html');       // OLD SYNTAX; no longer works.
+{% endhighlight %}
+
+You now use library and import like this:
+
+{% highlight dart %}
+library trading_cards;
+import 'dart:html';
+{% endhighlight %}
+
+Notice how, in the above code, the `#` and parentheses are gone. Also, the
+library name is now an identifier (not a string literal).
+
+The syntax for importing a library with a namespace has also changed. Here
+is an example of the new format:
+
+{% highlight dart %}
+import 'dart:svg' as svg;
+{% endhighlight %}
+
+### Control the names imported by a library
+
+New with M1 is the ability to selectively _show_ or _hide_ names when
+a library is imported. This is useful, for example, when collisions would
+otherwise occur.
+
+For example, consider the case of an app importing two libraries that implement
+a function with the same name.
+
+{% highlight dart %}
+library computer;
+
+run(Program program) {
+  // ...
+}
+{% endhighlight %}
+
+{% highlight dart %}
+library exercise;
+
+run(Marathon marathon) {
+  // ...
+}
+{% endhighlight %}
+
+Here is the main app that uses both libraries. This app does not compile
+because `run` is defined in both computer and exercise.
+
+{% highlight dart %}
+library app;
+
+import 'computer.dart';
+import 'exercise.dart';
+
+main() {
+  run(thing);  // compile-time error, run is defined in two libraries!
+}
+{% endhighlight %}
+
+Luckily, you can now import libraries and control the names that are added to
+your namespace. Use `show` to pull in *only* the names specified, or `hide` to
+pull in names *except* those specified.
+
+For example, you can hide the `run` identifier from the app and no
+collision will occur.
+
+{% highlight dart %}
+import 'computer.dart' hide run;
+import 'exercise.dart';
+{% endhighlight %}
+
+### Re-export
+
+Also new with M1 is the ability for a library to expose
+names from imported libraries as its own. This functionality is handy for
+library authors to create a single developer-facing library while still
+using sub-libraries for better code organization and privacy.
+
+To illustrate, consider a typical UI framework. It's not uncommon to split
+up the framework into separate libraries, such as models, views, and
+controllers. However, it would be a burden on the consumer of this framework to
+have to manually import each sub-library (models, views, and controllers).
+
+With M1 and re-export, the framework author can create a single holistic library
+called ui_framework, import all implementation libraries, and re-export their
+names. Framework authors get the benefit of splitting code into individual
+libraries, while consumers of the framework need only import a single library.
+
+Here is an example:
+
+{% highlight dart %}
+library ui_framework;
+import 'models.dart';
+import 'views.dart';
+import 'controllers.dart';
+
+export 'models.dart';
+export 'views.dart';
+export 'controllers.dart';
+{% endhighlight %}
+
+{% highlight dart %}
+library my_app;
+import 'ui_framework.dart';
+
+main() {
+  var model = new Model();
+  var view = new View();
+  var controller = new Controller();
+}
+{% endhighlight %}
+
+
+
+
+### Parts
+
+Libraries can still be split into multiple files (what used to be `#source`).
+However, the relationship between a library and its parts is now more
+declarative.
+
+Instead of:
+
+{% highlight dart %}
+#library('trading_cards');   // OLD SYNTAX; no longer works.
+#source('game_rules.dart');  // OLD SYNTAX; no longer works.
+{% endhighlight %}
+
+You now declare _parts_ of a library like:
+
+{% highlight dart %}
+library trading_cards;
+part 'game_rules.dart';
+{% endhighlight %}
+
+And the part must declare that it is a _part of_ a library. Over in
+game_rules.dart:
+
+{% highlight dart %}
+// Inside game_rules.dart
+
+part of trading_cards;
+{% endhighlight %}
+
+
+
+{::comment}
 
 ## Callable objects
 
 Coming soon.
 
 {:/comment}
+
+## Strings are UTF-16
+
+Before M1, a string was a sequence of Unicode character codes.
+Now, a string is a sequence of valid UTF-16 code units.
+This is mostly an internal change to improve performance,
+but you might care about it
+if your code compares or stores strings.
+
 
 ## Conclusion
 

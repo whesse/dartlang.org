@@ -1,9 +1,9 @@
 ---
 layout: default
-title: "Dart Web Components and Templates Specification"
+title: "Web UI Specification"
 rel:
   author: siggi-cherem
-description: "A detailed specification of how to use Dart Web Components and templates for declarative modern web apps."
+description: "A detailed reference guide of how to use Web UI for declarative modern web apps."
 has-permalinks: true
 ---
 {% comment %}
@@ -15,13 +15,13 @@ and \{\% codesample \%\}.
 
 # {{ page.title }}
 
-_Written by Siggi Cherem<br />
-November 2012_
+_Written by Sigmund Cherem<br />
+November 2012 (Updated December 2012)_
 
-Dart web components ([DWC][dwc]) provide templates, data binding, and
-encapsulation to help you write web applications at scale. This article contains
-a detailed specification of the DWC features. For a quick reference table of
-these features, please refer to our [summary article](summary.html), for a
+The Web UI package (Web UI for short) provides web components and templating to
+help you write web applications at scale. This article contains a detailed
+specification of Web UI's features. For a quick reference table of
+these features, please refer to our [summary article](summary.html); for a
 high-level introduction and examples, see our [explainer article](index.html).
 
 
@@ -57,7 +57,7 @@ high-level introduction and examples, see our [explainer article](index.html).
 
 ## Components
 
-The appearance and behavior of a Dart web component is encapsulated as a
+The appearance and behavior of a web component is encapsulated as a
 [custom HTML element][wc]. This section describes how to declare them, shows how
 to use them, and gives some insights about how they work.
 
@@ -107,16 +107,17 @@ discuss the appearance and behavioral aspects of a component.
 
 <aside>
 <div class="alert alert-info">
-<strong>Status:</strong> It shold be allowed to declare element tags anywhere,
+<strong>Status:</strong> It should be allowed to declare element tags anywhere,
 not just in the body of an HTML page. See
-<a href="https://github.com/dart-lang/dart-web-components/issues/197">Issue
+<a href="https://github.com/dart-lang/web-ui/issues/197">Issue
 #197</a> for details.
 </div>
 </aside>
 
 #### Appearance
 
-Every component inherits from existing tags. This includes tags corresponding to
+Every component inherits from existing tags.
+This includes tags corresponding to
 standard DOM elements or previously defined components. For example, you can
 extend `div`, `span`, `button`, `x-my-button`, etc. The base tag for the
 component is specified in the `extends` attribute. The idea is that a component
@@ -132,15 +133,16 @@ encapsulated using [Shadow DOM][sd]. Within a `<template>` it is valid to:
   * use other [component tag names](#declaration)
   * use [templating features](#template-syntax) (described further below)
   * use the `<content>` element for [composition][content-el]
-  * use ithe `<shadow>` element for [extension][shadow-el]
+  * use the `<shadow>` element for [extension][shadow-el]
 
-The `<content>` tag, combined with [CSS selectors][css], lets you control how to
+The `<content>` tag, combined with [CSS selectors][css],
+lets you control how to
 distribute child nodes provided at the component's
-[instantiations](#instantiate). The `<shadow>` tag is useful when extending from
+[instantiations](#instantiate).
+The `<shadow>` tag is useful when extending from
 other components. It allows you to inject within your template the contents of
-the parent's component. DWC follows the same [composition
-rules][composition] as the Shadow DOM spec for both `<content>` and `<shadow>`
-tags.
+the parent's component. Web UI follows the same [composition rules][composition]
+as the Shadow DOM spec for both `<content>` and `<shadow>` tags.
 
 A component's `<style>` tag contains scoped CSS rules that are only applicable
 in the context of the component's `<template>` body. If the attribute
@@ -151,8 +153,8 @@ Shadow DOM is available).
 <aside>
 <div class="alert alert-info">
 <strong>NOTE:</strong> scoped <code>style</code> is not supported yet in the
-current implementation of the DWC compiler, and a lot of details are missing in
-this specification. Learn more at the <a
+current implementation of the the Web UI compiler, and a lot of details are
+missing in this specification. Learn more at the <a
 href="http://dvcs.w3.org/hg/webcomponents/raw-file/tip/spec/shadow/index.html#styles">web
 components specification article</a>.
 </div>
@@ -161,13 +163,14 @@ components specification article</a>.
 #### Behavior
 
 The behavior of a component is declared directly in Dart code. The `<script>`
-tag declares the code associated with the component. It must be specified unless
+tag declares the code associated with the component.
+It must be specified unless
 a component has no behavior and its code can be assumed to be an empty class.
 If the tag is present, it must use the `type="application/dart"` attribute to
-indicate that the code is written is in Dart.
+indicate that the code is written in Dart.
 
 Whether you write code inline or you include it via a `src` attribute, the code
-must be a valid Dart library. In such library you must define a class
+must be a valid Dart library. In such a library you must define a class
 corresponding to the component. The name of this class must match the name
 specified by the `constructor` attribute. For example,
 
@@ -197,7 +200,7 @@ from the tag name, for example,
 {% endhighlight %}
 
 Currently the component's Dart class must be a subclass of `WebComponent` from
-`package:web_components/web_components.dart`.
+`package:web_ui/web_ui.dart`.
 
 <aside>
 <div class="alert alert-info">
@@ -237,8 +240,9 @@ You can instantiate such component in the following three ways:
     this approach because this constructor call cannot be used by itself--it
     requires several set up steps. We might have runtime libraries to make this
     easier in the future, and ultimately this should be even easier when
-    components can directly subclass elements in the Dart type hierarchy. If you
-    wish to do so, these are the steps to create a component programatically:
+    components can directly subclass elements in the Dart type hierarchy.
+    If you wish to do so,
+    these are the steps to create a component programatically:
 
       * create a host element that will be associated with your component, for
         instance `elem = new SpanElement()`
@@ -246,8 +250,8 @@ You can instantiate such component in the following three ways:
         components's compiler), passing `elem` as the only argument
       * update any fields in your component that need to be initialized (like
         fields used in [data bindings](#data-bindings))
-      * call the `created_autogenerated` and `created` methods in your component
-        instance
+      * call the `created_autogenerated` and `created` methods in your
+        component instance
       * programatically add the host created on the first step to the DOM tree
       * call the `inserted_autogenerated` and `inserted` methods of your
         component instance.
@@ -262,7 +266,7 @@ You can instantiate such component in the following three ways:
 pieces that are autogenerated. This explanation should also be simpler once we
 add a runtime library for constructing components programatically. For more
 details see <a
-href="https://github.com/dart-lang/dart-web-components/issues/93">issue #93</a>.
+href="https://github.com/dart-lang/web-ui/issues/93">issue #93</a>.
 </div>
 </aside>
 
@@ -270,7 +274,7 @@ href="https://github.com/dart-lang/dart-web-components/issues/93">issue #93</a>.
 
 You can reach a component instance using the `xtag` property of the
 associated HTML element. For example, if you create a tag as `<x-foo
-id="#example"></x-foo>` in the top-level body of your page, you can get an
+id="example"></x-foo>` in the top-level body of your page, you can get an
 instance of the component by calling `document.query('#example').xtag`.
 
 Note that `xtag` only works after an application is initialized and web
@@ -288,15 +292,15 @@ components extend directly from HTML elements.
 
 ### Template lexical scope {#template-scope}
 
-
 There is a strong connection between a components's script and a component's
-template. Data bindings and other [templating](#template-syntax) features inside
+template.
+Data bindings and other [templating](#template-syntax) features inside
 the `<template>` tag can contain expressions and references to functions.
-Unlike templates in model driven views ([MDV][mdv]), DWC uses [lexical scoping
-rules][dart-scope-rules] to determine the meaning of these expressions and
-symbols. In particular, template binding expressions will be interpreted as a
-lexical part of the component class definition. For instance, consider the
-following example:
+Unlike templates in model driven views ([MDV][mdv]), Web UI uses
+[lexical scoping rules][dart-scope-rules] to determine the meaning of these
+expressions and symbols. In particular, template binding expressions will be
+interpreted as a lexical part of the component class definition. For instance,
+consider the following example:
 
 {% highlight html %}
 {% raw %}
@@ -322,13 +326,13 @@ will display the value `foo class-level` and `bar top-level`.
 ### Class members
 
 A component class exposes public methods to attach hooks to lifecycle events of
-the component. Additionally, once processed by the DWC compiler, the component
-has an additional private field that make it possible to programatically access
-its template.
+the component. Additionally, once processed by the Web UI compiler, the
+component has an additional private field that make it possible to
+programatically access its template.
 
 #### Lifecycle methods
 
-Special callback methods are invoked by during the lifetime of a Dart web
+Special callback methods are invoked during the lifetime of a Dart web
 component. These methods are defined as part of the `WebComponent` class, and
 you can override them to run code at those lifecycle events. These special
 lifecycle methods are:
@@ -344,7 +348,7 @@ lifecycle methods are:
 <aside>
 <div class="alert alert-info">
 <strong>Status:</strong> <em>attributeChanged</em> is not supported yet. See
-<a href="https://github.com/dart-lang/dart-web-components/issues/90">Issue
+<a href="https://github.com/dart-lang/web-ui/issues/90">Issue
 #90</a>.
 </div>
 </aside>
@@ -358,9 +362,9 @@ enabled, this node is the shadow root of the component.
 <aside>
 <div class="alert alert-info">
 <strong>Status:</strong> Today the root field is injected automatically by the
-DWC compiler. Eventually we might require to declare the field explicitly
-so that developers can use the Dart editor and don't see any warnings. See <a
-href="https://github.com/dart-lang/dart-web-components/issues/195">Issue
+Web UI compiler. Eventually we might require to declare the field explicitly so
+that developers can use the Dart editor and don't see any warnings. See <a
+href="https://github.com/dart-lang/web-ui/issues/195">Issue
 #195</a> for more details.
 </div>
 </aside>
@@ -368,7 +372,8 @@ href="https://github.com/dart-lang/dart-web-components/issues/195">Issue
 ## Template Syntax
 
 Templates provide a declarative syntax to create applications that follow a
-model-view-viewmodel (MVVM) architecture. In this architecture, applications use
+model-view-viewmodel (MVVM) architecture.
+In this architecture, applications use
 models to hold data, view-models adapt the model to a friendly representation
 to display to the end user, and views reflect the latest changes to the model
 and view-model in the UI.
@@ -378,15 +383,16 @@ views bind data from the model and view-model. This makes it possible to
 simplify dramatically how to keep the views in sync with the data, which
 sometimes can be done completely automatically.
 
-Just like [MDV][mdv] templates, the DWC template syntax is valid HTML. Hence, it
-is always processed first as HTML. Within the HTML content, special text nodes
-and attributes can be used to add more semantic meaning to the template. This
+Just like [MDV][mdv] templates, our template syntax is valid HTML. Hence, it is
+always processed first as HTML. Within the HTML content, special text nodes and
+attributes can be used to add more semantic meaning to the template.  This
 section discusses these special features in detail.
 
 ### Data binding
 
 Data bindings consicely describe the relation between portions of the document
-and Dart expressions. Bindings can be used to indicate that some HTML content or
+and Dart expressions.
+Bindings can be used to indicate that some HTML content or
 attributes should be rendered with the result of evaluating a Dart expression.
 They can also be used to indicate that we wish to watch Dart expressions and
 reactively update the document whenever the expressions change. Alternatively,
@@ -402,7 +408,8 @@ main script associated with that page (more details
 
 #### Binding in content
 
-You can introduce a data binding in a text node by using expressions of the form
+You can introduce a data binding in a text node
+by using expressions of the form
 `{{'{{'}}exp}}` as nodes in your HTML. For example, a component with the
 following template:
 
@@ -420,18 +427,19 @@ following template:
 {% endhighlight %}
 
 will render as `<span>one two three</span>`. At runtime, `x` will be
-[watched](#watchers) for changes. When changes are detected, the contents of the
+[watched](#watchers) for changes.
+When changes are detected, the contents of the
 page will be updated in place.
 
 You can use any valid Dart expression inside the double brackets `{{'{{'}} ...
 }}`. While any expression is allowed, it is good practice to use expressions
-that are have no visible side-effects. In particular, binding expressions will
+that have no visible side-effects. In particular, binding expressions will
 be evaluated to render your application, and sometimes they might be evaluated
 more than once in a single event cycle. If your expression has visible
-side-effects, those changes might trigger more updates in the document than what
-you initially intended to happen.
+side effects, those changes might trigger more updates in the document
+than what you initially intended to happen.
 
-The program generated by the DWC compiler will evaluate a
+The program generated by the Web UI compiler will evaluate a
 binding expression to a value,  call [`toString()`][tostring] on it and place
 the result as a text node where the binding was found. This means that if your
 content has some HTML tags in it, the content is automatically escaped. For
@@ -439,11 +447,11 @@ instance, if we use `x='<span>two</span>'`, the result will be `<span>one
 &lt;span&gt;two&lt;/span&gt; three</span>`
 
 On occasions, you may want to inject HTML fragments directly in the page.
-You can do so by creating an `SafeHtml` class under
-[`package:web_components/safe_html.dart`][safehtml]. If your content happen to
+You can do so by creating an instance of `SafeHtml` (see 
+[`package:web_ui/safe_html.dart`][safehtml]). If your content happen to
 be an instance of `SafeHtml`, then the data will not be escaped.
 
-**Note:** You should use `SafeHtml` carefully. In particular, you can easily
+**Note:** Use `SafeHtml` carefully. In particular, you can easily
 make your application exploitable through cross-site scripting (XSS) attacks if
 you allow arbitrary user data to be placed unescaped in your page. In practice,
 you should only use it when you know that the HTML is valid and safe.
@@ -451,7 +459,8 @@ you should only use it when you know that the HTML is valid and safe.
 <aside>
 <div class="alert alert-info">
 <strong>Status:</strong> `SafeHtml` is available but very primitive at this
-point. This type should evolve, and maybe one day it could be integrated as part
+point. This type should evolve,
+and maybe one day it could be integrated as part
 of the `dart:html` APIs.
 </div>
 </aside>
@@ -563,7 +572,7 @@ _two-way data bindings_. Two-way data bindings are expressed with an attribute
 of the form `bind-property="assignableValue"`, where _property_ is the
 associated property in the HTML element that we are monitoring, and
 _assignableValue_ is a Dart assignable value. This is the current list of
-two-way bindings supported by the DWC compiler:
+two-way bindings supported by Web UI:
 
 | | Interactive element          |  | Attribute      |  | Description                                |  | Event that triggers an update |
 |-| :-----------                 |- | :--------      |- | :-------                                   |- | :------ | 
@@ -627,17 +636,17 @@ groups behave exactly the same way.
 As hinted in the previous sections, data bindings are reactive. We would like
 the UI to be updated automatically whenever a Dart expression used in a data
 binding changes. Watchers provide a way to implement this functionality. Their
-implementation is available under `package:web_components/watcher.dart`. For
+implementation is available under `package:web_ui/watcher.dart`. For
 each expression used in a data binding, we create a watcher. These watchers are
 inactive until the special method `dispatch` in the watcher's library is
 invoked. The `dispatch` method will iterate over all active watchers and fire
 events on any watcher whose value has changed.
 
-The DWC compiler automatically adds call to `dispatch` on two-way
-data bindings and at the end of [inlined UI event listeners](#event-listeners).
-If a change made in your data doesn't automatically appear in the UI, it is very
-likely that a call to `dispatch` is missing. Here are common situations where
-you need to invoke `dispatch` by hand:
+Web UI automatically adds call to `dispatch` on two-way data bindings and at the
+end of [inlined UI event listeners](#event-listeners).  If a change made in your
+data doesn't automatically appear in the UI, it is very likely that a call to
+`dispatch` is missing. Here are common situations where you need to invoke
+`dispatch` by hand:
 
 * If you install event listeners manually via the `dart:html` API.
 * If you make data changes that happen after an asynchronous API call, for
@@ -650,7 +659,7 @@ you need to invoke `dispatch` by hand:
 <strong>Status:</strong> We are looking at alternatives to automatically call
 dispatch or change how watchers are implemented so that you don't need to
 manually write any of the additional calls above.  See <a
-href="https://github.com/dart-lang/dart-web-components/issues/156">Issue
+href="https://github.com/dart-lang/web-ui/issues/156">Issue
 #156</a> for more details.
 
 </div>
@@ -659,10 +668,10 @@ href="https://github.com/dart-lang/dart-web-components/issues/156">Issue
 ### Conditionals
 
 Portions of the template can be conditionally hidden using template
-conditionals. The DWC compiler supports two different ways to
-express conditionals. You can make a document fragment conditionally visible by
-declaring it within a conditional `<template>` element node, or you can make an
-element and its children conditionally visible by using a conditional attribute
+conditionals. Web UI supports two different ways to express conditionals. You
+can make a document fragment conditionally visible by declaring it within a
+conditional `<template>` element node, or you can make an element and its
+children conditionally visible by using a conditional attribute
 in the element. Next, we discuss each of these approaches and when it is
 appropriate to [use one or the other](#which-conditional).
 
@@ -678,7 +687,7 @@ Alternatively, instead of `instantiate="if exp"` you can write `if="exp"`.
 <strong>Note:</strong> 
 The final syntax for conditionals is not finalyzed. In particular, currently
 only <code>instantiate="if ..."</code> is part of the MDV specification.
-However, the DWC compiler supports both <code>instantiate="if ..."</code> and
+However, Web UI supports both <code>instantiate="if ..."</code> and
 <code>if="..."</code> and it will later provide feedback whenever one is
 deprecated in favor of the other.
 </div>
@@ -705,9 +714,9 @@ invisible placeholder that indicates where was this conditional initially
 declared, then if the condition is true, the contents of the template node will
 be appended as siblings of this placeholder.
 
-The DWC compiler uses a shallow clone of the original template
-node as the invisible placeholder. For example, this is how the tree looks like
-when the condition is false in our example above:
+The Web UI compiler uses a shallow clone of the original template node as the
+invisible placeholder. For example, this is how the tree looks like when the
+condition is false in our example above:
 
 {% highlight html %}
 Unconditional portion 1
@@ -730,12 +739,12 @@ here
 Unconditional portion 2
 {% endhighlight %}
 
-Note that the contents of the initial template not are not within the template
+Note that the contents of the initial template are not within the template
 tag anymore, they got added directly as siblings. This behavior is
 intentional. Template nodes are intended to be inert, and they are mainly used
 as a declaration. This matches closely the semantics of [MDV][mdv] templates.
 
-A benefit of this semantics is that the resulting HTML is often closer to the
+A benefit of this semantics is that the resulting HTML is often closer to 
 what the developer intended to say. For example, a template of the form:
 
 {% highlight html %}
@@ -816,7 +825,7 @@ The runtime semantics of these conditionals is similar, but not quite the same
 as conditional `<template>` elements. Like before, an invisible placeholder is
 added to the tree regardless of the condition being true or false. Instead of a
 template node, the HTML will have an empty clone of the element annotated with
-the condition. When the condition is true, the actual element it self is added
+the condition. When the condition is true, the actual element itself is added
 (with the template attribute removed). For instance, the following shows the
 rendered tree when the condition is true in the example above:
 
@@ -881,11 +890,12 @@ which will render as:
 <div> a <span style="display:none"></span> <span>c</span> b </div>
 {% endhighlight %}
 
-Another subtle difference derives from the fact that DWC templates are
+Another subtle difference derives from the fact that templates are
 syntactically valid HTML. The HTML5 parsing algorithm has very strict rules
-about where you can use certain element types. In particular, `<template>` nodes
+about where you can use certain element types.
+In particular, `<template>` nodes
 cannot occur within tables, and the parsing algorithm move these template nodes
-somewhere else. This also happens in the DWC compiler, which uses an HTML5
+somewhere else. This also happens in the Web UI compiler, which uses an HTML5
 compliant parser. For example, if you write:
 
 {% highlight html %}
@@ -914,8 +924,10 @@ attributes as follows:
 ### Loops
 
 Loops make it possible to iterate over a collection and repeat portions of a
-template with each iteration. Just like [conditionals](#conditionals), there are
-also 2 ways to express loops. You can repeat a fragment by declaring it within a
+template with each iteration. Just like [conditionals](#conditionals),
+there are
+also 2 ways to express loops.
+You can repeat a fragment by declaring it within a
 iterate `<template>` element node, or you can repeat the body of an element by
 using an iterate attribute on the element.
 
@@ -943,8 +955,9 @@ body of the iterate element. For instance, in the following example:
 the expression `list` is evaluated to a collection. For each element in the
 collection, there will be 2 `<li>` tags in the generated HTML.
 
-The runtime semantics of loops has a lot of similarities with conditionals. At
-runtime, the HTML generated for this template will have an invisible placeholder
+The runtime semantics of loops has a lot of similarities with conditionals.
+At runtime,
+the HTML generated for this template will have an invisible placeholder
 indicating where the loop starts, the repeated content is appended directly
 after this placeholder node.
 
@@ -973,7 +986,8 @@ development.
 
 #### The iterate attribute {#iterate-attribute}
 
-An alternative syntax to do template iterations is to use an `iterate` attribute
+An alternative syntax to do template iterations is
+to use an `iterate` attribute
 directly on an element. This is especially useful to iterate on table rows or
 columns, where you are not allowed to use `<template>` tags.
 
@@ -1015,9 +1029,10 @@ intent to remove the extra <code>template</code> attribute.
 #### Iterate element vs. attribute {#which-loop}
 
 The main difference between iterate template nodes and iterate attributes is
-that the former appends the repeated contents as siblings of the iteration node,
-while the latter appends them as children of the element containing the iterate
-attribute.
+that the former appends the repeated contents
+as siblings of the iteration node,
+while the latter appends them as children of
+the element containing the iterate attribute.
 
 This difference is especially noticeable when you want to create a list with a
 header and a footer. This is supported by template nodes as follows:
@@ -1037,7 +1052,8 @@ header and a footer. This is supported by template nodes as follows:
 but it cannot be expressed using iteration attributes.
 
 Because HTML parsering algorithm moves `<template>` nodes outside tables, they
-cannot be used to iterate over `<tr>` or `<td>` elements. Here again, similar to
+cannot be used to iterate over `<tr>` or `<td>` elements.
+Here again, similar to
 conditional attributes, iteration attributes can be used in this context. For
 example:
 
@@ -1055,8 +1071,10 @@ example:
 
 <aside>
 <div class="alert alert-info">
-<strong>Status:</strong> Tables always have a <code>&lt;tbody&gt;</code>, and if
-instead you use the iterate attribute in <code>&lt;table&gt;</code> the Dart web
+<strong>Status:</strong>
+Tables always have a <code>&lt;tbody&gt;</code>, and if
+instead you use the iterate attribute in <code>&lt;table&gt;</code>
+the Dart web
 component compiler will think that you intend to repeat the table body multiple
 times. This needs to be fixed.
 </div>
@@ -1085,7 +1103,8 @@ called:
 {% endhighlight %}
 
 The name for the `on-` attributes is the hyphened version of the Dart name
-associated with the event in `dart:html`, which is what you would normally write
+associated with the event in `dart:html`,
+which is what you would normally write
 in calls of the form `elem.on.event.add(eventListener)`. For example, the
 attribute for the `doubleClick` event is `on-double-click`. See the API docs for
 [ElementEvents][elemevents] and [InputElementEvents][inputevents] for a complete
@@ -1102,7 +1121,7 @@ immediately after by a call to `dispatch` that notifies watchers about data
 changes.
 
 
-## Web Apps
+## Web apps
 
 To create modern web applications, use web components and templates as
 building blocks and put it all together with HTML pages. The main HTML file for
@@ -1113,7 +1132,8 @@ HTML body.
 ### Declaring components
 
 We mentioned earlier that components are declared using the `<element>` tag.
-You can write many of these tags in a page, but only directly under the `<body>`
+You can write many of these tags in a page,
+but only directly under the `<body>`
 element. For example,
 
 {% highlight html %}
@@ -1125,7 +1145,8 @@ element. For example,
   ...
 {% endhighlight %}
 
-You can then either use these components directly in your page or load this file
+You can then either use these components directly in your page
+or load this file
 from other HTML files. In essence, an HTML file works like a library that
 bundles web components.
 
@@ -1166,13 +1187,13 @@ script (either inlined or sourced) which starts everything. For instance,
 Only one script tag loading Dart code is allowed in a single page. Similar to
 script tags in component declarations, this script tag is optional. If all the
 behavior of your application is already initialized and defined with your
-components, you can omit this script tag and the DWC compiler
+components, you can omit this script tag and the Web UI compiler
 will automatically generate a standard one.
 
 <aside>
 <div class="alert alert-info">
-<strong>Status:</strong> autogenerating a script tag is not yet implemented.
-in the DWC compiler.
+<strong>Status:</strong> Autogenerating a script tag is not yet implemented
+in the Web UI compiler.
 </div>
 </aside>
 
@@ -1194,19 +1215,18 @@ are evaluated. We discussed earlier that templates in a component are evaluated
 in the context of the [component's class](#template-scope), here the templates
 are evaluated in the top-level context of the main script.
 
-
 [composition]: http://dvcs.w3.org/hg/webcomponents/raw-file/tip/spec/shadow/index.html#composition
 [content-el]: http://dvcs.w3.org/hg/webcomponents/raw-file/tip/spec/shadow/index.html#content-element
 [css]: http://www.w3.org/TR/selectors/
 [dart-expressions]: http://www.dartlang.org/docs/spec/latest/dart-language-specification.html#h.dz8ekoegseec
 [dart-scope-rules]: http://www.dartlang.org/docs/spec/latest/dart-language-specification.html#h.jb82efuudrc5
-[dwc]: https://github.com/dart-lang/dart-web-components/
+[project]: https://github.com/dart-lang/web-ui/
 [mdv]: http://code.google.com/p/mdv/
 [sd]: http://dvcs.w3.org/hg/webcomponents/raw-file/tip/spec/shadow/index.html
 [shadow-el]: http://dvcs.w3.org/hg/webcomponents/raw-file/tip/spec/shadow/index.html#shadow-element
 [wc]: http://dvcs.w3.org/hg/webcomponents/raw-file/tip/explainer/index.html
 [wcappendix]: http://dvcs.w3.org/hg/webcomponents/raw-file/tip/explainer/index.html#appendix-b-html-elements
 [tostring]: http://api.dartlang.org/docs/bleeding_edge/dart_core/Object.html#toString
-[safehtml]: https://github.com/dart-lang/dart-web-components/blob/master/lib/safe_html.dart
+[safehtml]: https://github.com/dart-lang/web-ui/blob/master/lib/safe_html.dart
 [elemevents]: http://api.dartlang.org/docs/bleeding_edge/dart_html/ElementEvents.html
 [inputevents]: http://api.dartlang.org/docs/bleeding_edge/dart_html/InputElementEvents.html
