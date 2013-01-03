@@ -216,16 +216,17 @@ a.permalink {
   }
 }
 
-#book-header {
-  color: $grayLight;;
-  font-size: $baseFontSize - 1;;
-  font-style: italic;
-  text-align:center;
+.spec-commentary {
+  color: green;
 }
 
-.spec-commentary {
+.spec-rationale {
   color: blue;
   font-style: italic;
+}
+
+.spec-change {
+  background: yellow;
 }
 
 footer {
@@ -258,6 +259,7 @@ article .has-permalink {
 @import "syntax";
 @import "tutorial";
 @import "dartisans_live";
+@import "up_and_running_book";
 
 @media print {
   .no-print {
