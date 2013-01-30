@@ -74,13 +74,22 @@ This article walks through some examples. For more details, check out our
 [specification](spec.html), the [summary of features](summary.html), and our
 [installation instructions](tools.html).
 
-<div class="alert alert-danger">
+<aside class="alert alert-info">
+<strong>Try our tutorials!</strong>
+For a gentle introduction to using Web UI, see the tutorials in
+<a href="/docs/tutorials/">A Game of Darts</a>.
+Web UI coverage starts in
+<a href="/docs/tutorials/web-ui/">Target 6: Get Started with Web UI</a>.
+</aside>
+
+<aside class="alert alert-danger">
 <strong>Note:</strong> The examples in this article do not work
-out of the box in a standard Dart SDK, you need to first set up the Dart Web
-UI tools. We have a <a href="tools.html">separate article with setup
-instructions</a>, which details how to use Dart Editor and command-line scripts
+out of the box in a standard Dart SDK;
+you first need to set up the Dart Web UI tools.
+See the page <a href="tools.html">Tools for Web UI</a>
+for details on using Dart Editor and command-line scripts
 to compile code that uses Web UI.
-</div>
+</aside>
 
 #### Contents
 
@@ -323,16 +332,13 @@ using a looping construct.
         'Watermelon'];
 
     List<String> get results {
-      var res = fruits.filter(
-          (v) => v.toLowerCase().contains(query.toLowerCase()));
-      if (res.length > 20) {
-        res.length = 20;
-        res.add('... and many more');
-      }
-      return res;
+      var lQuery = query.toLowerCase();
+      var res = fruits.where((v) => v.toLowerCase().contains(lQuery));
+      return (res.length <= 20) ? res.toList()
+          : (res.take(20).toList()..add('... and many more'));
     }
 
-    bool get noMatches => results.isEmpty();
+    bool get noMatches => results.isEmpty;
 
     main() {}
   </script>
@@ -427,10 +433,8 @@ take the click-count example above and make it a component as follows:
 <html><body>
   <element name="x-click-counter" constructor="CounterComponent" extends="div">
     <template>
-      <div>
-        <button on-click="increment()">Click me</button>
-        <span>(click count: {{count}})</span>
-      </div>
+      <button on-click="increment()">Click me</button>
+      <span>(click count: {{count}})</span>
     </template>
     <script type="application/dart">
       import 'package:web_ui/web_ui.dart';
@@ -492,18 +496,19 @@ example.  Note that using an end tag `</x-click-counter>` is required.
 ### Passing data to a component {#pass-data-to-component}
 
 All of the public fields in a component declaration can be initialized directly
-when we instantiate a component. We can do this by writing a special
-`data-value` attribute in the HTML. For instance, the following example
-instantiates two click-counter components (declared just like above), but
-initializes the `count` field of the component to a different value each time.
+when we instantiate a component. We can do this by binding to an attribute name
+that matches the hyphened-spelling of the field name.  For instance, the
+following example instantiates two click-counter components (declared just like
+above), but initializes the `count` field of the component to a different value
+each time.
 
 {% codesample 90 %}
 {% highlight html %}
 {% raw %}
 <html><body>
   <!-- ... element declared as above -->
-  <div is="x-click-counter" data-value="count: myNumber"></div>
-  <div is="x-click-counter" data-value="count: 5"></div>
+  <div is="x-click-counter" count="{{myNumber}}"></div>
+  <div is="x-click-counter" count="{{5}}"></div>
   <script type="application/dart">
     int myNumber = 12;
     main(){}
@@ -566,8 +571,8 @@ as we had above. Then the preceding example could be rewritten as follows:
     <link rel="components" href="clickcounter.html">
   </head>
   <body>
-    <div is="x-click-counter" data-value="count: myNumber"></div>
-    <div is="x-click-counter" data-value="count: 5"></div>
+    <div is="x-click-counter" count="{{myNumber}}"></div>
+    <div is="x-click-counter" count="{{5}}"></div>
     <script type="application/dart">
       int myNumber = 12;
       main(){}

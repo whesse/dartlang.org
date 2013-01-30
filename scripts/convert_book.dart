@@ -1,6 +1,7 @@
 #!/usr/bin/env dart
 
 import 'dart:io';
+import 'dart:async';
 
 Directory outputDir;
 
@@ -31,7 +32,7 @@ convertFile(String fileName) {
 writeFile(String fileName, String title, String body) {
   var out = new File('${outputDir.path}/${fileName}');
   out.writeAsStringSync(frontMatter(title));
-  out.writeAsStringSync(body, FileMode.APPEND, Encoding.UTF_8);
+  out.writeAsStringSync(body, mode: FileMode.APPEND, encoding: Encoding.UTF_8);
 }
 
 checkDir(Directory dir) {
@@ -63,6 +64,6 @@ main() {
   checkDir(outputDir);
 
   dirContents(inputDir)
-    .transform((filenames) => filenames.filter((f) => f.endsWith(".html")))
+    .then((filenames) => filenames.where((f) => f.endsWith(".html")))
     .then((htmlFilenames) => htmlFilenames.forEach((f) => convertFile(f)));
 }
