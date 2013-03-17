@@ -1,37 +1,37 @@
 ---
 layout: default
 title: "Dart Cookbook"
-description: "Tasty recipes to make you more productive with Dart."
+description: "Recipes and prescriptions for using Dart."
+has-permalinks: true
 ---
 
 # Dart Cookbook
 
 ## Contents
-<ol>
-<li><a href="#strings">Strings</a><ol>
-<li><a href="concatenating_strings">Concatenating Strings</a></li>
-<li><a href="interpolating_expressions_inside_strings">Interpolating expressions inside strings</a></li>
-<li><a href="handling_special_characters_within_strings">Handling special characters within strings</a></li>
-<li><a href="incrementally_building_a_string_using_a_stringbuffer">Incrementally building a string using a StringBuffer</a></li>
-<li><a href="determining_whether_a_string_is_empty">Determining whether a string is empty</a></li>
-<li><a href="removing_leading_and_trailing_whitespace">Removing leading and trailing whitespace</a></li>
-<li><a href="changing_string_case">Changing string case</a></li>
-<li><a href="handling_extended_characters_that_are_composed_of_multiple_code_units">Handling extended characters that are composed of multiple code units</a></li>
-<li><a href="converting_between_characters_and_numerical_codes">Converting between characters and numerical codes</a></li>
-<li><a href="calculating_the_length_of_a_string">Calculating the length of a string</a></li>
-<li><a href="processing_a_string_one_character_at_a_time">Processing a string one character at a time</a></li>
-<li><a href="splitting_a_string_into_substrings">Splitting a string into substrings</a></li>
-<li><a href="determining_whether_a_string_contains_another_string">Determining whether a string contains another string</a></li>
-<li><a href="finding_matches_of_a_regexp_pattern_in_a_string">Finding matches of a RegExp pattern in a string</a></li>
-<li><a href="substituting_strings_based_on_regexp_matches">Substituting strings based on RegExp matches</a></li>
 
-</ol>
-<li>
-</ol>
+1. [Strings](#strings)
+    1. [Concatenating Strings](#concatenating-strings)
+    1. [Interpolating expressions inside strings](#interpolating-expressions-inside-strings)
+    1. [Handling special characters within strings](#handling-special-characters-within-strings)
+    1. [Incrementally building a string using a StringBuffer](#incrementally-building-a-string-using-a-stringbuffer)
+    1. [Determining whether a string is empty](#determining-whether-a-string-is-empty)
+    1. [Removing leading and trailing whitespace](#removing-leading-and-trailing-whitespace)
+    1. [Changing string case](#changing-string-case)
+    1. [Handling extended characters that are composed of multiple code units](#handling-extended-characters-that-are-composed-of-multiple-code-units)
+    1. [Converting between characters and numerical codes](#converting-between-characters-and-numerical-codes)
+    1. [Calculating the length of a string](#calculating-the-length-of-a-string)
+    1. [Processing a string one character at a time](#processing-a-string-one-character-at-a-time)
+    1. [Splitting a string into substrings](#splitting-a-string-into-substrings)
+    1. [Determining whether a string contains another string](#determining-whether-a-string-contains-another-string)
+    1. [Finding matches of a RegExp pattern in a string](#finding-matches-of-a-regexp-pattern-in-a-string)
+    1. [Substituting strings based on RegExp matches](#substituting-strings-based-on-regexp-matches)
+{:.toc}
+
+
 
 ## Strings
 
-<h3><a id="concatenating_strings" href="#concatenating_strings">Concatenating Strings</a></h3>
+### Concatenating Strings
 
 #### Problem
 
@@ -98,7 +98,7 @@ var film = ['The', 'Big', 'Lebowski']).join(' '); // 'The Big Lebowski'
 You can also use string interpolation to concatenate strings (see
 _Interpolating expressions inside strings_, below).
 
-<h3><a id="interpolating_expressions_inside_strings" href="#interpolating_expressions_inside_strings">Interpolating expressions inside strings</a></h3>
+### Interpolating expressions inside strings
 
 #### Problem
 
@@ -164,7 +164,7 @@ class Point {
 print('Point: $point'); // 'Point: x: 3, y: 4'
 </pre>
 
-<h3><a id="handling_special_characters_within_strings" href="#handling_special_characters_within_strings">Handling special characters within strings</a></h3>
+### Handling special characters within strings
 
 #### Problem
 
@@ -220,7 +220,7 @@ print('Wile \E Coyote'); // 'Wile E Coyote'
 </pre>
 
 
-<h3><a id="incrementally_building_a_string_using_a_stringbuffer" href="#incrementally_building_a_string_using_a_stringbuffer">Incrementally building a string using a StringBuffer</a></h3>
+### Incrementally building a string using a StringBuffer
 
 #### Problem
 
@@ -308,7 +308,7 @@ var beatles = sb.toString(); // 'The Beatles:\nJohn, Paul, George, and Ringo!'
 </pre>
 
 
-<h3><a id="determining_whether_a_string_is_empty" href="#determining_whether_a_string_is_empty">Determining whether a string is empty</a></h3>
+### Determining whether a string is empty
 
 #### Problem
 
@@ -345,7 +345,7 @@ will see a warning in the editor if you use an 'if' statement with a non-boolean
 in checked mode.
 
 
-<h3><a id="removing_leading_and_trailing_whitespace" href="#removing_leading_and_trailing_whitespace">Removing leading and trailing whitespace</a></h3>
+### Removing leading and trailing whitespace
 
 #### Problem
 
@@ -378,7 +378,7 @@ var newString = string.replaceFirst(new RegExp(r'\s+$'), ''); // '\n\r\f\t\v X'
 </pre>
 
 
-<h3><a id="changing_string_case" href="#changing_string_case">Changing string case</a></h3>
+### Changing string case
 
 #### Problem
 
@@ -416,7 +416,7 @@ If a character's case does not change when using `toUpperCase()` and
 form.
 
 
-<h3><a id="handling_extended_characters_that_are_composed_of_multiple_code_units" href="#handling_extended_characters_that_are_composed_of_multiple_code_units">Handling extended characters that are composed of multiple code units</a></h3>
+### Handling extended characters that are composed of multiple code units
 
 #### Problem
 
@@ -489,7 +489,7 @@ print(subject.runes.map((rune) => new String.fromCharCode(rune)).toList());
 </pre>
 
 
-<h3><a id="converting_between_characters_and_numerical_codes" href="#converting_between_characters_and_numerical_codes">Converting between characters and numerical codes</a></h3>
+### Converting between characters and numerical codes
 
 #### Problem
 
@@ -563,7 +563,7 @@ Creating a string with only one half of a surrogate pair is permitted,
 but not recommended.
 
 
-<h3><a id="calculating_the_length_of_a_string" href="#calculating_the_length_of_a_string">Calculating the length of a string</a></h3>
+### Calculating the length of a string
 
 #### Problem
 
@@ -629,7 +629,7 @@ the 'é' is constructed using a different number of runes. This makes it
 impossible to know the length of these strings by just looking at them.
 
 
-<h3><a id="processing_a_string_one_character_at_a_time" href="#processing_a_string_one_character_at_a_time">Processing a string one character at a time</a></h3>
+### Processing a string one character at a time
 
 #### Problem
 
@@ -681,7 +681,7 @@ extended characters that are composed of multiple code units_ recipe for
 special considerations when working with extended strings.
 
 
-<h3><a id="splitting_a_string_into_substrings" href="#splitting_a_string_into_substrings">Splitting a string into substrings</a></h3>
+### Splitting a string into substrings
 
 #### Problem
 
@@ -728,7 +728,7 @@ registered to transform the matched and unmatched substrings before the
 substrings are joined together again.
 
 
-<h3><a id="determining_whether_a_string_contains_another_string" href="#determining_whether_a_string_contains_another_string">Determining whether a string contains another string</a></h3>
+### Determining whether a string contains another string
 
 #### Problem
 
@@ -773,7 +773,7 @@ var found = new RegExp(r'ar[et]').hasMatch(string);
 //  True, 'art' and 'are' match.
 </pre>
 
-<h3><a id="finding_matches_of_a_regexp_pattern_in_a_string" href="#finding_matches_of_a_regexp_pattern_in_a_string">Finding matches of a RegExp pattern in a string</a></h3>
+### Finding matches of a RegExp pattern in a string
 
 #### Problem
 
@@ -814,7 +814,7 @@ print(regExp.stringMatch(neverEatingThat));         // 'fox'
 print(regExp.stringMatch('I like bagels and lox')); // null
 </pre>
 
-<h3><a id="substituting_strings_based_on_regexp_matches" href="#substituting_strings_based_on_regexp_matches">Substituting strings based on RegExp matches</a></h3>
+### Substituting strings based on RegExp matches
 
 #### Problem
 
