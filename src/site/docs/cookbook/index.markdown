@@ -10,7 +10,7 @@ has-permalinks: true
 ## Contents
 
 1. [Strings](#strings)
-    1. [Concatenating Strings](#concatenating-strings)
+    1. [Concatenating strings](#concatenating-strings)
     1. [Interpolating expressions inside strings](#interpolating-expressions-inside-strings)
     1. [Handling special characters within strings](#handling-special-characters-within-strings)
     1. [Incrementally building a string using a StringBuffer](#incrementally-building-a-string-using-a-stringbuffer)
@@ -23,15 +23,15 @@ has-permalinks: true
     1. [Processing a string one character at a time](#processing-a-string-one-character-at-a-time)
     1. [Splitting a string into substrings](#splitting-a-string-into-substrings)
     1. [Determining whether a string contains another string](#determining-whether-a-string-contains-another-string)
-    1. [Finding matches of a RegExp pattern in a string](#finding-matches-of-a-regexp-pattern-in-a-string)
-    1. [Substituting strings based on RegExp matches](#substituting-strings-based-on-regexp-matches)
+    1. [Finding matches of a regular expression](#finding-matches-of-a-regular-expression)
+    1. [Substituting strings using regular expressions](#substituting-strings-using-regular-expressions)
 {:.toc}
 
 
 
 ## Strings
 
-### Concatenating Strings
+### Concatenating strings
 
 #### Problem
 
@@ -56,7 +56,7 @@ var fact = 'Dart'
 'fun!'; // 'Dart is fun!'
 </pre>
 
-They also work when using multiline strings:
+They also work when using multi-line strings:
 
 <pre class="programlisting">
 var lunch = '''Peanut
@@ -65,8 +65,7 @@ butter'''
 jelly'''; // 'Peanut\nbutter and\njelly'
 </pre>
 
-You can concatenate adjacent single line literals with multiline
-strings:
+You can concatenate adjacent single-line literals with multi-line strings:
 
 <pre class="programlisting">
 var funnyGuys = 'Dewey ' 'Cheatem'
@@ -122,7 +121,7 @@ var whatDoILove = 'I love $favFood'; // 'I love sushi'
 
 #### Discussion
 
-An interpolated string, `'string ${expression}` is equivalent to the
+The interpolated string, `'string ${expression}` is equivalent to the
 concatenation of the strings `string` and `expression.toString()`.
 Consider this code:
 
@@ -138,8 +137,8 @@ var seasons = 'The '.concat(4.toString()).concat(' seasons');
 // 'The 4 seasons'
 </pre>
 
-You should consider implementing a `toString()` method for user-defined
-objects. Here's what happens if you don't:
+You should consider implementing a `toString()` method for classes that you
+define. Here's what happens if you don't:
 
 <pre class="programlisting">
 class Point {
@@ -175,7 +174,7 @@ You want to put newlines, dollar signs, or other special characters in strings.
 Prefix special characters with a `\`.
 
 <pre class="programlisting">
-  print(Wile\nCoyote'); 
+  print('Wile\nCoyote'); 
   // Wile
   // Coyote
 </pre>
@@ -440,8 +439,8 @@ range. These strings only have semantic meaning as a pair. Individually, they
 are invalid UTF-16 strings. The term 'surrogate pair' is often used to
 describe these strings. 
 
-The clef glyph `'\u{1D11E}'` is composed of the `'\uD834'` and `'\uDD1E'`
-surrogate pair.
+The treble clef glyph `'\u{1D11E}'` is composed of the `'\uD834'` and
+`'\uDD1E'` surrogate pair.
 
 You can get an extended string's surrogate pair through its `codeUnits`
 property:
@@ -773,7 +772,7 @@ var found = new RegExp(r'ar[et]').hasMatch(string);
 //  True, 'art' and 'are' match.
 </pre>
 
-### Finding matches of a RegExp pattern in a string
+### Finding matches of a regular expression
 
 #### Problem
 
@@ -814,7 +813,7 @@ print(regExp.stringMatch(neverEatingThat));         // 'fox'
 print(regExp.stringMatch('I like bagels and lox')); // null
 </pre>
 
-### Substituting strings based on RegExp matches
+### Substituting strings using regular expressions
 
 #### Problem
 
@@ -837,7 +836,7 @@ If you want to replace just the first match, use `replaceFirst()`:
 var smallNum = '0.0001'.replaceFirst(new RegExp(r'0+'), ''); // '.0001'
 </pre>
 
-You can use `replaceAllMatched()` to register a function that modifies the
+You can use `replaceAllMapped()` to register a function that modifies the
 matches:
 
 <pre class="programlisting">
@@ -849,6 +848,5 @@ var newString = string.replaceAllMapped(regExp, (match) {
 }); 
 print(newString); // 'I like IKE but I ♡ LUCY'
 </pre>
-
 
 
